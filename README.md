@@ -1,19 +1,35 @@
-# SQL Query Formatter API
+# SQL Query Formatter
+A fast, developer‑friendly SQL query formatter built with FastAPI and vanilla JavaScript.
 
-Lightweight FastAPI-based SQL formatter for developers.
-
-## Stack
+## Features
+- Instant SQL formatting in the browser
+- Clean indentation and readable formatting
+- Uppercase SQL keywords
+- Dark mode developer UI
+- Copy formatted SQL to clipboard
+- Keyboard shortcut (Cmd/Ctrl + Enter)
+- Rate‑limited API endpoint
+## Tech Stack
 - Python
 - FastAPI
 - sqlparse
 - slowapi (rate limiting)
 - Vanilla JS frontend served as static files
 
-## Project Structure
+-## Project Layout
 - backend/
 - frontend/
 - requirements.txt
 - Dockerfile
+
+## Live Demo
+Once deployed, the tool will be available at:
+
+```
+https://<your-domain>
+```
+
+Until a custom domain is configured, you can access the temporary deployment URL provided by the hosting platform.
 
 ## Environment Variables
 The app supports environment-based configuration via `.env` or host environment values.
@@ -79,10 +95,10 @@ docker run --rm -p 8000:8000 \
 4. Set environment variables in Railway:
    - `ALLOWED_ORIGINS` (your production domain)
    - `LOG_LEVEL=INFO`
-5. Deploy and verify:
-   - `/healthz` returns `{\"status\":\"ok\"}`
-   - `/` serves frontend
-   - `/format` formats SQL
+5. Deploy and verify the service:
+   - `/healthz` returns `{"status":"ok"}`
+   - `/` loads the SQL formatter UI
+   - `/format` formats SQL queries
 
 ## Deploy to Render
 1. Create a new Web Service from your GitHub repo.
@@ -94,6 +110,14 @@ docker run --rm -p 8000:8000 \
    - `/healthz`
    - `/`
    - `POST /format`
+
+## Use Cases
+This tool is useful for:
+
+- Developers quickly formatting SQL queries
+- Cleaning up messy SQL before code reviews
+- Improving readability of complex queries
+- Preparing SQL for documentation or sharing
 
 ## API Endpoints
 - `POST /format`
