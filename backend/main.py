@@ -1,8 +1,9 @@
 import logging
 import os
+import re
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
@@ -24,6 +25,7 @@ RAILWAY_HOST = "sql-query-formatter-production.up.railway.app"
 CANONICAL_HOST = "sql-formatter.dev"
 DEFAULT_ALLOWED_ORIGINS = "http://localhost:8000,http://127.0.0.1:8000,http://127.0.0.1:5500"
 DEFAULT_LOG_LEVEL = "INFO"
+SQL_KEYWORD_PATTERN = re.compile(r"\b(SELECT|INSERT|UPDATE|DELETE|CREATE|WITH|ALTER|DROP)\b", re.IGNORECASE)
 
 
 def resolve_log_level() -> int:
@@ -38,6 +40,10 @@ logging.basicConfig(
 logger = logging.getLogger("sql_formatter_api")
 
 
+def looks_like_sql(sql: str) -> bool:
+    return bool(SQL_KEYWORD_PATTERN.search(sql))
+
+
 class FormatRequest(BaseModel):
     sql: str
     indent_size: int = 4
@@ -49,7 +55,7 @@ class FormatRequest(BaseModel):
     def validate_sql(cls, value: str) -> str:
         normalized = value.strip()
         if not normalized:
-            raise ValueError("SQL must not be empty")
+            raise ValueError("SQL input cannot be empty.")
         if len(normalized) > MAX_SQL_CHARS:
             raise ValueError(f"SQL exceeds maximum length of {MAX_SQL_CHARS} characters")
         return normalized
@@ -187,6 +193,10 @@ async def format_sql(request: Request, payload: FormatRequest):
         payload.keyword_case,
         payload.dialect,
     )
+
+    if not looks_like_sql(payload.sql):
+        logger.warning("event=invalid_sql_input ip=%s", client_ip)
+        raise HTTPException(status_code=400, detail="Input does not appear to be valid SQL.")
 
     try:
         # Dialect is accepted for future rule sets; currently formatting behavior is shared.
