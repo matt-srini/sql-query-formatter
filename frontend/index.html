@@ -15,10 +15,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
-        id="hljs-light-theme">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
         id="hljs-dark-theme" disabled>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+        id="hljs-light-theme">
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -49,7 +49,7 @@
             <label class="label">Formatted Output</label>
             <section class="output-shell" aria-label="Formatted SQL Output">
                 <p id="output-empty" class="output-empty">Formatted SQL will appear here.</p>
-                <pre id="output-pre" class="output-pre" hidden><code id="output-sql" class="language-sql"></code></pre>
+                <pre id="output-pre" class="output-pre" hidden><code id="formatted-sql" class="language-sql"></code></pre>
             </section>
             <div class="output-actions">
                 <button id="copy-btn" class="btn btn-secondary" type="button" disabled>Copy</button>
@@ -57,7 +57,8 @@
         </section>
     </main>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
     <script src="app.js"></script>
 </body>
 

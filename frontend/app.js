@@ -5,7 +5,7 @@ const sampleBtn = document.getElementById("sample-btn");
 const themeToggleBtn = document.getElementById("theme-toggle");
 
 const inputSqlEl = document.getElementById("input-sql");
-const outputSqlEl = document.getElementById("output-sql");
+const outputSqlEl = document.getElementById("formatted-sql");
 const outputPreEl = document.getElementById("output-pre");
 const outputEmptyEl = document.getElementById("output-empty");
 const statusEl = document.getElementById("status");
