@@ -91,6 +91,36 @@
                 <pre id="output-pre" class="output-pre" hidden><code id="formatted-sql" class="language-sql"></code></pre>
             </section>
         </section>
+
+        <section class="card seo-content" aria-label="SQL formatter information">
+            <h2>Format SQL Queries Online</h2>
+            <p>This free SQL formatter helps developers and data engineers format SQL queries instantly with cleaner indentation, keyword casing controls, and improved readability for day-to-day query work.</p>
+
+            <h3>What is a SQL Formatter?</h3>
+            <p>A SQL formatter, also called a SQL beautifier, restructures SQL queries so they are easier to read and maintain by adding consistent indentation, line breaks, and standardized keyword casing.</p>
+
+            <h3>Why Format SQL Queries?</h3>
+            <ul>
+                <li>Improve query readability</li>
+                <li>Make debugging easier</li>
+                <li>Maintain consistent SQL style</li>
+                <li>Share SQL with teammates more easily</li>
+            </ul>
+
+            <h3>Example of Formatted SQL</h3>
+            <pre><code>-- Messy SQL
+select u.id,u.name,count(o.id) from users u left join orders o on o.user_id=u.id where u.active=1 group by u.id,u.name;
+
+-- Formatted SQL
+SELECT u.id,
+       u.name,
+       COUNT(o.id)
+FROM users u
+LEFT JOIN orders o ON o.user_id = u.id
+WHERE u.active = 1
+GROUP BY u.id,
+         u.name;</code></pre>
+        </section>
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>

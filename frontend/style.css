@@ -304,6 +304,45 @@ h1 {
   gap: 10px;
 }
 
+.seo-content {
+  margin-top: 40px;
+  line-height: 1.6;
+}
+
+.seo-content h2,
+.seo-content h3 {
+  margin-top: 24px;
+}
+
+.seo-content h2 {
+  margin-top: 0;
+}
+
+.seo-content p,
+.seo-content ul {
+  color: var(--muted);
+}
+
+.seo-content ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.seo-content pre {
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(127, 127, 127, 0.04);
+  padding: 14px;
+  overflow-x: auto;
+}
+
+.seo-content code {
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
 @media (max-width: 700px) {
   .card {
     padding: 16px;

@@ -14,6 +14,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 import sqlparse
+from sqlparse import tokens as T
 
 
 load_dotenv()
@@ -25,8 +26,6 @@ RAILWAY_HOST = "sql-query-formatter-production.up.railway.app"
 CANONICAL_HOST = "sql-formatter.dev"
 DEFAULT_ALLOWED_ORIGINS = "http://localhost:8000,http://127.0.0.1:8000,http://127.0.0.1:5500"
 DEFAULT_LOG_LEVEL = "INFO"
-SQL_KEYWORD_PATTERN = re.compile(r"\b(SELECT|INSERT|UPDATE|DELETE|CREATE|WITH|ALTER|DROP)\b", re.IGNORECASE)
-
 
 def resolve_log_level() -> int:
     configured_level = os.getenv("LOG_LEVEL", DEFAULT_LOG_LEVEL).upper()
@@ -39,9 +38,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger("sql_formatter_api")
 
+_VALID_FIRST_TTYPES = frozenset([T.Keyword.DML, T.Keyword.DDL, T.Keyword.CTE])
+
 
 def looks_like_sql(sql: str) -> bool:
-    return bool(SQL_KEYWORD_PATTERN.search(sql))
+    stripped = sql.strip()
+    if not stripped:
+        return False
+    if re.match(r"https?://|www\.", stripped, re.IGNORECASE):
+        return False
+    parsed = sqlparse.parse(stripped)
+    if not parsed:
+        return False
+    stmt = parsed[0]
+    first = None
+    for tok in stmt.flatten():
+        if tok.is_whitespace or tok.ttype in (T.Comment.Single, T.Comment.Multiline):
+            continue
+        first = tok
+        break
+    if first is None:
+        return False
+    return first.ttype in _VALID_FIRST_TTYPES
 
 
 class FormatRequest(BaseModel):
