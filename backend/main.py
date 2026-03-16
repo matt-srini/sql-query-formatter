@@ -20,6 +20,8 @@ load_dotenv()
 
 MAX_SQL_CHARS = 50_000
 MAX_REQUEST_BODY_BYTES = 200 * 1024
+RAILWAY_HOST = "sql-query-formatter-production.up.railway.app"
+CANONICAL_HOST = "sql-formatter.dev"
 DEFAULT_ALLOWED_ORIGINS = "http://localhost:8000,http://127.0.0.1:8000,http://127.0.0.1:5500"
 DEFAULT_LOG_LEVEL = "INFO"
 
@@ -74,6 +76,16 @@ app.add_middleware(
 )
 
 app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
+
+
+@app.middleware("http")
+async def canonical_domain_redirect(request: Request, call_next):
+    if request.url.hostname == RAILWAY_HOST:
+        canonical_url = f"https://{CANONICAL_HOST}{request.url.path}"
+        if request.url.query:
+            canonical_url = f"{canonical_url}?{request.url.query}"
+        return RedirectResponse(url=canonical_url, status_code=301)
+    return await call_next(request)
 
 
 @app.middleware("http")
