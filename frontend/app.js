@@ -1,10 +1,14 @@
 const formatBtn = document.getElementById("format-btn");
 const copyBtn = document.getElementById("copy-btn");
+const downloadSqlBtn = document.getElementById("download-sql-btn");
 const clearBtn = document.getElementById("clear-btn");
 const sampleBtn = document.getElementById("sample-btn");
 const themeToggleBtn = document.getElementById("theme-toggle");
 
 const inputSqlEl = document.getElementById("input-sql");
+const indentSizeEl = document.getElementById("indent-size");
+const keywordCaseEl = document.getElementById("keyword-case");
+const sqlDialectEl = document.getElementById("sql-dialect");
 const outputSqlEl = document.getElementById("formatted-sql");
 const outputPreEl = document.getElementById("output-pre");
 const outputEmptyEl = document.getElementById("output-empty");
@@ -21,21 +25,35 @@ const COPY_DEFAULT_LABEL = "Copy";
 
 let lastFormattedSql = "";
 let copyLabelTimer = null;
+let pasteAutoFormatTimer = null;
 
 function setStatus(message, type = "info") {
   statusEl.textContent = message;
   statusEl.className = `status ${type}`;
+  if (type === "success") {
+    statusEl.classList.remove("animate-success");
+    void statusEl.offsetWidth;
+    statusEl.classList.add("animate-success");
+  }
+}
+
+function renderFormattedSql(sql) {
+  outputSqlEl.textContent = sql;
+  if (window.hljs) {
+    // Reset previous highlight state so repeated renders are re-highlighted.
+    delete outputSqlEl.dataset.highlighted;
+    outputSqlEl.classList.remove("hljs");
+    window.hljs.highlightElement(outputSqlEl);
+  }
 }
 
 function showFormattedOutput(formattedSql) {
   lastFormattedSql = formattedSql;
-  outputSqlEl.textContent = formattedSql;
+  renderFormattedSql(formattedSql);
   outputEmptyEl.hidden = true;
   outputPreEl.hidden = false;
   copyBtn.disabled = !lastFormattedSql;
-  if (window.hljs) {
-    window.hljs.highlightElement(outputSqlEl);
-  }
+  downloadSqlBtn.disabled = !lastFormattedSql;
 }
 
 function clearOutput() {
@@ -44,7 +62,24 @@ function clearOutput() {
   outputPreEl.hidden = true;
   outputEmptyEl.hidden = false;
   copyBtn.disabled = true;
+  downloadSqlBtn.disabled = true;
   copyBtn.textContent = COPY_DEFAULT_LABEL;
+}
+
+function downloadFormattedSql() {
+  if (!lastFormattedSql) {
+    return;
+  }
+
+  const sqlBlob = new Blob([lastFormattedSql], { type: "text/sql;charset=utf-8" });
+  const downloadUrl = URL.createObjectURL(sqlBlob);
+  const downloadLink = document.createElement("a");
+  downloadLink.href = downloadUrl;
+  downloadLink.download = "formatted.sql";
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+  URL.revokeObjectURL(downloadUrl);
 }
 
 function getPreferredTheme() {
@@ -88,6 +123,9 @@ async function copyToClipboard(text) {
 
 async function formatSql() {
   const sql = inputSqlEl.value.trim();
+  const indentSize = document.getElementById("indent-size").value;
+  const keywordCase = document.getElementById("keyword-case").value;
+  const dialect = document.getElementById("sql-dialect").value;
   if (!sql) {
     clearOutput();
     setStatus("Please enter SQL to format.", "error");
@@ -101,7 +139,12 @@ async function formatSql() {
     const response = await fetch(API_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sql })
+      body: JSON.stringify({
+        sql,
+        indent_size: Number.parseInt(indentSize, 10),
+        keyword_case: keywordCase,
+        dialect: dialect
+      })
     });
 
     const payload = await response.json();
@@ -145,7 +188,6 @@ formatBtn.addEventListener("click", formatSql);
 copyBtn.addEventListener("click", async () => {
   try {
     const copied = await copyToClipboard(lastFormattedSql);
-    setStatus(copied ? "Copied to clipboard." : "Copy failed.", copied ? "success" : "error");
     if (copied) {
       copyBtn.textContent = "Copied";
       if (copyLabelTimer) {
@@ -154,6 +196,8 @@ copyBtn.addEventListener("click", async () => {
       copyLabelTimer = setTimeout(() => {
         copyBtn.textContent = COPY_DEFAULT_LABEL;
       }, 1500);
+    } else {
+      setStatus("Copy failed.", "error");
     }
   } catch (error) {
     setStatus(error.message || "Copy failed.", "error");
@@ -162,6 +206,7 @@ copyBtn.addEventListener("click", async () => {
 
 clearBtn.addEventListener("click", clearAll);
 sampleBtn.addEventListener("click", loadSampleSql);
+downloadSqlBtn.addEventListener("click", downloadFormattedSql);
 
 themeToggleBtn.addEventListener("click", () => {
   const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
@@ -176,6 +221,20 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     formatSql();
   }
+});
+
+inputSqlEl.addEventListener("paste", () => {
+  if (pasteAutoFormatTimer) {
+    clearTimeout(pasteAutoFormatTimer);
+  }
+
+  pasteAutoFormatTimer = setTimeout(() => {
+    const sql = inputSqlEl.value.trim();
+    if (!sql) {
+      return;
+    }
+    formatSql();
+  }, 300);
 });
 
 applyTheme(getPreferredTheme());

@@ -40,6 +40,9 @@ logger = logging.getLogger("sql_formatter_api")
 
 class FormatRequest(BaseModel):
     sql: str
+    indent_size: int = 4
+    keyword_case: str = "upper"
+    dialect: str = "generic"
 
     @field_validator("sql")
     @classmethod
@@ -51,7 +54,28 @@ class FormatRequest(BaseModel):
             raise ValueError(f"SQL exceeds maximum length of {MAX_SQL_CHARS} characters")
         return normalized
 
+    @field_validator("indent_size")
+    @classmethod
+    def validate_indent_size(cls, value: int) -> int:
+        if value not in (2, 4):
+            raise ValueError("indent_size must be 2 or 4")
+        return value
 
+    @field_validator("keyword_case")
+    @classmethod
+    def validate_keyword_case(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if normalized not in ("upper", "lower", "preserve"):
+            raise ValueError("keyword_case must be upper, lower, or preserve")
+        return normalized
+
+    @field_validator("dialect")
+    @classmethod
+    def validate_dialect(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if normalized not in ("generic", "postgres", "mysql", "spark"):
+            raise ValueError("dialect must be generic, postgres, mysql, or spark")
+        return normalized
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
 app.state.limiter = limiter
@@ -156,13 +180,23 @@ async def health_check():
 async def format_sql(request: Request, payload: FormatRequest):
     client_ip = get_remote_address(request)
     logger.info(
-        "event=format_request ip=%s sql_length=%d",
+        "event=format_request ip=%s sql_length=%d indent_size=%d keyword_case=%s dialect=%s",
         client_ip,
         len(payload.sql),
+        payload.indent_size,
+        payload.keyword_case,
+        payload.dialect,
     )
 
     try:
-        formatted = sqlparse.format(payload.sql, reindent=True, keyword_case="upper")
+        # Dialect is accepted for future rule sets; currently formatting behavior is shared.
+        _dialect = payload.dialect
+        formatted = sqlparse.format(
+            payload.sql,
+            reindent=True,
+            indent_width=payload.indent_size,
+            keyword_case=None if payload.keyword_case == "preserve" else payload.keyword_case,
+        )
         return {"formatted": formatted}
     except Exception:
         logger.exception("event=format_error ip=%s", client_ip)
