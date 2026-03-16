@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL Query Formatter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light-theme">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark-theme" disabled>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="page">
+    <section class="card">
+      <header class="header">
+        <div>
+          <h1>SQL Query Formatter</h1>
+          <p class="subtitle">Lightweight formatting tool for fast SQL cleanup.</p>
+        </div>
+        <button id="theme-toggle" class="btn btn-secondary" type="button" aria-label="Toggle dark mode">Dark Mode</button>
+      </header>
+
+      <label for="input-sql" class="label">Input SQL</label>
+      <textarea id="input-sql" class="sql-input" placeholder="Paste SQL here and press Cmd+Enter / Ctrl+Enter"></textarea>
+
+      <div class="actions">
+        <button id="format-btn" class="btn btn-primary" type="button">Format</button>
+        <button id="clear-btn" class="btn btn-secondary" type="button">Clear</button>
+        <button id="sample-btn" class="btn btn-secondary" type="button">Sample SQL</button>
+      </div>
+
+      <p id="status" class="status" aria-live="polite"></p>
+
+      <label class="label">Formatted Output</label>
+      <section class="output-shell" aria-label="Formatted SQL Output">
+        <p id="output-empty" class="output-empty">Formatted SQL will appear here.</p>
+        <pre id="output-pre" class="output-pre" hidden><code id="output-sql" class="language-sql"></code></pre>
+      </section>
+      <div class="output-actions">
+        <button id="copy-btn" class="btn btn-secondary" type="button" disabled>Copy</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
