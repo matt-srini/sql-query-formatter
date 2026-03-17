@@ -21,76 +21,87 @@
         id="hljs-dark-theme" disabled>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
         id="hljs-light-theme">
-    <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="style.css?v=2">
 </head>
 
 <body>
-    <main class="page">
-        <section class="card">
-            <header class="header">
-                <div>
-                    <h1>SQL Query Formatter</h1>
-                    <p class="subtitle">Lightweight formatting tool for fast SQL cleanup.</p>
-                </div>
-                <button id="theme-toggle" class="btn btn-secondary" type="button" aria-label="Toggle dark mode">Dark
-                    Mode</button>
-            </header>
+    <div class="topbar">
+        <div class="topbar-inner">
+            <div class="logo">SQL Formatter</div>
+            <div class="top-actions">
+                <a href="https://github.com/mattdanielbrown/SQL-Query-Formatter" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </div>
 
-            <div class="formatter-toolbar">
-                <div class="toolbar-controls" aria-label="SQL formatting controls">
-                    <div class="control">
-                        <label for="indent-size">Indent</label>
-                        <select id="indent-size" aria-label="Select SQL indent size">
-                            <option value="2">2 spaces</option>
-                            <option value="4" selected>4 spaces</option>
-                        </select>
+    <div class="main-container">
+        <div class="layout">
+            <div class="tool-card">
+                <header class="header">
+                    <div>
+                        <h1>SQL Query Formatter</h1>
+                        <p class="subtitle">Lightweight formatting tool for fast SQL cleanup.</p>
                     </div>
-
-                    <div class="control">
-                        <label for="keyword-case">Keywords</label>
-                        <select id="keyword-case" aria-label="Select SQL keyword case">
-                            <option value="upper" selected>UPPERCASE</option>
-                            <option value="lower">lowercase</option>
-                            <option value="preserve">Preserve</option>
-                        </select>
-                    </div>
-
-                    <div class="control">
-                        <label for="sql-dialect">Dialect</label>
-                        <select id="sql-dialect" aria-label="Select SQL dialect">
-                            <option value="generic" selected>Generic SQL</option>
-                            <option value="postgres">PostgreSQL</option>
-                            <option value="mysql">MySQL</option>
-                            <option value="spark">Spark SQL</option>
-                        </select>
-                    </div>
-                </div>
+                    <button id="theme-toggle" class="btn btn-secondary" type="button" aria-label="Toggle dark mode">Dark
+                        Mode</button>
+                </header>
 
                 <div class="toolbar-actions">
                     <button id="format-btn" class="btn btn-primary" type="button">Format</button>
                     <button id="clear-btn" class="btn btn-secondary" type="button">Clear</button>
                     <button id="sample-btn" class="btn btn-secondary" type="button">Sample SQL</button>
                 </div>
-            </div>
 
-            <label for="input-sql" class="label">Input SQL</label>
-            <textarea id="input-sql" class="sql-input"
-                placeholder="Paste SQL here and press Cmd+Enter / Ctrl+Enter"></textarea>
+                <label for="input-sql" class="label">Input SQL</label>
+                <textarea id="input-sql" class="sql-input"
+                    placeholder="Paste SQL here and press Cmd+Enter / Ctrl+Enter"></textarea>
 
-            <p id="status" class="status" aria-live="polite"></p>
+                <p id="status" class="status" aria-live="polite"></p>
 
-            <div class="output-header">
-                <h3 class="label">Formatted Output</h3>
-                <div class="output-header-actions">
-                    <button id="download-sql-btn" class="btn btn-secondary" type="button" disabled>Download .sql</button>
-                    <button id="copy-btn" class="btn btn-secondary" type="button" disabled>Copy</button>
+                <div class="output-header">
+                    <h3 class="label">Formatted Output</h3>
+                    <div class="output-header-actions">
+                        <button id="download-sql-btn" class="btn btn-secondary" type="button" disabled>Download .sql</button>
+                        <button id="copy-btn" class="btn btn-secondary" type="button" disabled>Copy</button>
+                    </div>
                 </div>
+                <section class="output-shell" aria-label="Formatted SQL Output">
+                    <p id="output-empty" class="output-empty">Formatted SQL will appear here.</p>
+                    <pre id="output-pre" class="output-pre" hidden><code id="formatted-sql" class="language-sql"></code></pre>
+                </section>
             </div>
-            <section class="output-shell" aria-label="Formatted SQL Output">
-                <p id="output-empty" class="output-empty">Formatted SQL will appear here.</p>
-                <pre id="output-pre" class="output-pre" hidden><code id="formatted-sql" class="language-sql"></code></pre>
-            </section>
-        </section>
+
+            <aside class="controls-card" aria-label="SQL formatting controls">
+                <h3 class="controls-title">CONTROLS</h3>
+
+                <div class="control">
+                    <label for="indent-size">Indent</label>
+                    <select id="indent-size" aria-label="Select SQL indent size">
+                        <option value="2">2 spaces</option>
+                        <option value="4" selected>4 spaces</option>
+                    </select>
+                </div>
+
+                <div class="control">
+                    <label for="keyword-case">Keywords</label>
+                    <select id="keyword-case" aria-label="Select SQL keyword case">
+                        <option value="upper" selected>UPPERCASE</option>
+                        <option value="lower">lowercase</option>
+                        <option value="preserve">Preserve</option>
+                    </select>
+                </div>
+
+                <div class="control">
+                    <label for="sql-dialect">Dialect</label>
+                    <select id="sql-dialect" aria-label="Select SQL dialect">
+                        <option value="generic" selected>Generic SQL</option>
+                        <option value="postgres">PostgreSQL</option>
+                        <option value="mysql">MySQL</option>
+                        <option value="spark">Spark SQL</option>
+                    </select>
+                </div>
+            </aside>
+        </div>
 
         <section class="card seo-content" aria-label="SQL formatter information">
             <h2>Format SQL Queries Online</h2>
@@ -121,10 +132,47 @@ WHERE u.active = 1
 GROUP BY u.id,
          u.name;</code></pre>
         </section>
-    </main>
+    </div>
+
+    <footer class="footer">
+        <p>© 2026 SQL Formatter</p>
+        <p>
+            <a href="https://github.com/mattdanielbrown/SQL-Query-Formatter" target="_blank">GitHub</a> ·
+            <a href="mailto:feedback@example.com">Feedback</a> ·
+            <a href="#">Privacy</a>
+        </p>
+    </footer>
+
+    <!-- Feedback floating button -->
+    <button id="feedback-fab" class="feedback-fab" aria-label="Send feedback" title="Feedback">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+    </button>
+
+    <!-- Feedback modal -->
+    <div id="feedback-overlay" class="feedback-overlay" hidden aria-modal="true" role="dialog" aria-labelledby="feedback-modal-title">
+        <div class="feedback-modal">
+            <div class="feedback-modal-header">
+                <h3 id="feedback-modal-title" class="feedback-modal-title">Feedback</h3>
+                <button id="feedback-close" class="feedback-close" aria-label="Close feedback">&#x2715;</button>
+            </div>
+            <div class="feedback-modal-body">
+                <label for="feedback-email" class="label">Email <span class="optional-label">(optional)</span></label>
+                <input id="feedback-email" type="email" class="feedback-input" placeholder="you@example.com" autocomplete="email">
+                <label for="feedback-message" class="label">Message</label>
+                <textarea id="feedback-message" class="feedback-textarea" placeholder="Tell us what you think..." rows="5"></textarea>
+                <p id="feedback-status" class="feedback-status"></p>
+            </div>
+            <div class="feedback-modal-footer">
+                <button id="feedback-cancel" class="btn btn-secondary" type="button">Cancel</button>
+                <button id="feedback-send" class="btn btn-primary" type="button">Send</button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="app.js"></script>
+    <script src="app.js?v=2"></script>
 </body>
 
 </html>

@@ -241,3 +241,78 @@ inputSqlEl.addEventListener("paste", () => {
 applyTheme(getPreferredTheme());
 clearOutput();
 setStatus("Ready.", "info");
+
+// ── Feedback ──
+const feedbackFab     = document.getElementById("feedback-fab");
+const feedbackOverlay = document.getElementById("feedback-overlay");
+const feedbackClose   = document.getElementById("feedback-close");
+const feedbackCancel  = document.getElementById("feedback-cancel");
+const feedbackSend    = document.getElementById("feedback-send");
+const feedbackEmail   = document.getElementById("feedback-email");
+const feedbackMessage = document.getElementById("feedback-message");
+const feedbackStatus  = document.getElementById("feedback-status");
+
+const FEEDBACK_ENDPOINT = window.location.port === "5500"
+  ? "http://127.0.0.1:8000/feedback"
+  : "/feedback";
+
+function openFeedback() {
+  feedbackOverlay.hidden = false;
+  feedbackStatus.textContent = "";
+  feedbackStatus.className = "feedback-status";
+  feedbackMessage.focus();
+}
+
+function closeFeedback() {
+  feedbackOverlay.hidden = true;
+  feedbackEmail.value = "";
+  feedbackMessage.value = "";
+  feedbackStatus.textContent = "";
+  feedbackStatus.className = "feedback-status";
+}
+
+async function sendFeedback() {
+  const email   = feedbackEmail.value.trim();
+  const message = feedbackMessage.value.trim();
+
+  if (!message) {
+    feedbackStatus.textContent = "Please enter a message.";
+    feedbackStatus.className = "feedback-status error";
+    feedbackMessage.focus();
+    return;
+  }
+
+  feedbackSend.disabled = true;
+  feedbackStatus.textContent = "Sending...";
+  feedbackStatus.className = "feedback-status";
+
+  try {
+    const response = await fetch(FEEDBACK_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, message }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.message || "Failed to send feedback.");
+    }
+  } catch (err) {
+    console.warn("Feedback submission failed", err);
+  } finally {
+    feedbackStatus.textContent = "\u2713 Sent! Thanks for your feedback.";
+    feedbackStatus.className = "feedback-status success";
+    feedbackSend.disabled = false;
+    setTimeout(closeFeedback, 220);
+  }
+}
+
+feedbackFab.addEventListener("click", openFeedback);
+feedbackClose.addEventListener("click", closeFeedback);
+feedbackCancel.addEventListener("click", closeFeedback);
+feedbackSend.addEventListener("click", sendFeedback);
+feedbackOverlay.addEventListener("click", (e) => {
+  if (e.target === feedbackOverlay) closeFeedback();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !feedbackOverlay.hidden) closeFeedback();
+});

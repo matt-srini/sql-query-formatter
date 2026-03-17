@@ -1,7 +1,13 @@
+import json
 import logging
 import os
 import re
+from datetime import datetime, timezone
 from pathlib import Path
+from urllib import error as urllib_error
+from urllib import parse as urllib_parse
+from urllib import request as urllib_request
+from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
@@ -13,6 +19,7 @@ from dotenv import load_dotenv
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
+from starlette.concurrency import run_in_threadpool
 import sqlparse
 from sqlparse import tokens as T
 
@@ -26,6 +33,8 @@ RAILWAY_HOST = "sql-query-formatter-production.up.railway.app"
 CANONICAL_HOST = "sql-formatter.dev"
 DEFAULT_ALLOWED_ORIGINS = "http://localhost:8000,http://127.0.0.1:8000,http://127.0.0.1:5500"
 DEFAULT_LOG_LEVEL = "INFO"
+DEFAULT_APP_ENV = "local"
+FEEDBACK_WEBHOOK_TIMEOUT_SECONDS = 10
 
 def resolve_log_level() -> int:
     configured_level = os.getenv("LOG_LEVEL", DEFAULT_LOG_LEVEL).upper()
@@ -100,6 +109,75 @@ class FormatRequest(BaseModel):
         if normalized not in ("generic", "postgres", "mysql", "spark"):
             raise ValueError("dialect must be generic, postgres, mysql, or spark")
         return normalized
+
+class FeedbackRequest(BaseModel):
+    email: str = ""
+    message: str
+
+    @field_validator("message")
+    @classmethod
+    def validate_message(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Message cannot be empty.")
+        if len(value) > 5_000:
+            raise ValueError("Message too long (max 5000 characters).")
+        return value
+
+    @field_validator("email")
+    @classmethod
+    def validate_email_field(cls, value: str) -> str:
+        value = value.strip()
+        if value and not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", value):
+            raise ValueError("Invalid email address.")
+        return value
+
+
+def build_feedback_webhook_url(base_url: str, token: str) -> str:
+    parsed_url = urllib_parse.urlparse(base_url)
+    existing_query = urllib_parse.parse_qs(parsed_url.query, keep_blank_values=True)
+    existing_query["token"] = [token]
+    encoded_query = urllib_parse.urlencode(existing_query, doseq=True)
+    return urllib_parse.urlunparse(parsed_url._replace(query=encoded_query))
+
+
+def post_feedback_webhook(url: str, payload: dict) -> dict:
+    request_body = json.dumps(payload).encode("utf-8")
+    webhook_request = urllib_request.Request(
+        url,
+        data=request_body,
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+        method="POST",
+    )
+    with urllib_request.urlopen(webhook_request, timeout=FEEDBACK_WEBHOOK_TIMEOUT_SECONDS) as response:
+        response_status = getattr(response, "status", 200)
+        response_body = response.read().decode("utf-8")
+    if response_status < 200 or response_status >= 300:
+        raise ValueError(f"Feedback webhook returned unexpected status {response_status}.")
+    if not response_body:
+        logger.warning("event=feedback_webhook_empty_response")
+        return {
+            "ok": True,
+            "status": "accepted",
+            "transport": "empty-response",
+        }
+    try:
+        return json.loads(response_body)
+    except json.JSONDecodeError:
+        logger.warning(
+            "event=feedback_webhook_non_json_response body_preview=%s",
+            response_body[:160],
+        )
+        return {
+            "ok": True,
+            "status": "accepted",
+            "transport": "non-json-response",
+        }
+
+
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
 app.state.limiter = limiter
@@ -157,7 +235,11 @@ async def request_size_guard(request: Request, call_next):
 
 @app.on_event("startup")
 async def on_startup() -> None:
-    logger.info("event=server_startup allowed_origins=%s", allowed_origins)
+    logger.info(
+        "event=server_startup allowed_origins=%s feedback_webhook_configured=%s",
+        allowed_origins,
+        bool(os.getenv("FEEDBACK_WEBHOOK_URL") and os.getenv("FEEDBACK_WEBHOOK_TOKEN")),
+    )
 
 
 @app.exception_handler(RequestValidationError)
@@ -197,6 +279,88 @@ async def script_file():
 @app.get("/healthz")
 async def health_check():
     return {"status": "ok"}
+
+
+@app.post("/feedback")
+@limiter.limit("10/minute")
+async def submit_feedback(request: Request, payload: FeedbackRequest):
+    feedback_webhook_url = os.getenv("FEEDBACK_WEBHOOK_URL", "").strip()
+    feedback_webhook_token = os.getenv("FEEDBACK_WEBHOOK_TOKEN", "").strip()
+    app_env = os.getenv("APP_ENV", DEFAULT_APP_ENV).strip() or DEFAULT_APP_ENV
+
+    request_id = f"req_{uuid4().hex}"
+    submitted_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    client_ip = get_remote_address(request)
+    user_agent = request.headers.get("user-agent", "")
+    from_label = payload.email if payload.email else "Anonymous"
+
+    logger.info("event=feedback_received from=%s request_id=%s", from_label, request_id)
+
+    if not feedback_webhook_url or not feedback_webhook_token:
+        logger.warning("event=feedback_webhook_not_configured request_id=%s", request_id)
+        return JSONResponse(
+            status_code=503,
+            content={
+                "error": "FEEDBACK_NOT_CONFIGURED",
+                "message": "Feedback storage is not configured on the server.",
+            },
+        )
+
+    webhook_url = build_feedback_webhook_url(feedback_webhook_url, feedback_webhook_token)
+    webhook_payload = {
+        "version": "1.0",
+        "submitted_at": submitted_at,
+        "source": "web",
+        "email": payload.email,
+        "message": payload.message,
+        "meta_ip": client_ip,
+        "meta_user_agent": user_agent,
+        "meta_env": app_env,
+        "request_id": request_id,
+    }
+
+    try:
+        webhook_response = await run_in_threadpool(post_feedback_webhook, webhook_url, webhook_payload)
+        if webhook_response.get("ok") is not True or webhook_response.get("status") != "accepted":
+            logger.warning(
+                "event=feedback_webhook_rejected request_id=%s error_code=%s message=%s",
+                request_id,
+                webhook_response.get("error_code", "UNKNOWN"),
+                webhook_response.get("message", "Unknown feedback webhook rejection."),
+            )
+            return JSONResponse(
+                status_code=502,
+                content={
+                    "error": "FEEDBACK_DELIVERY_FAILED",
+                    "message": webhook_response.get("message", "Feedback storage rejected the submission."),
+                },
+            )
+
+        logger.info(
+            "event=feedback_stored from=%s request_id=%s row_number=%s",
+            from_label,
+            request_id,
+            webhook_response.get("row_number"),
+        )
+        return {"status": "ok"}
+    except urllib_error.HTTPError as exc:
+        logger.exception("event=feedback_webhook_http_error request_id=%s status=%s", request_id, exc.code)
+        return JSONResponse(
+            status_code=502,
+            content={
+                "error": "FEEDBACK_DELIVERY_FAILED",
+                "message": "Feedback storage endpoint returned an error.",
+            },
+        )
+    except (urllib_error.URLError, TimeoutError, ValueError):
+        logger.exception("event=feedback_webhook_request_error request_id=%s", request_id)
+        return JSONResponse(
+            status_code=502,
+            content={
+                "error": "FEEDBACK_DELIVERY_FAILED",
+                "message": "Failed to store feedback.",
+            },
+        )
 
 
 @app.post("/format")

@@ -21,6 +21,7 @@
 - `GET /` serves the frontend HTML.
 - `GET /healthz` returns `{"status":"ok"}` for platform health checks.
 - `POST /format` accepts JSON `{ "sql": "..." }` and returns `{ "formatted": "..." }`.
+- `POST /feedback` accepts JSON `{ "email": "...", "message": "..." }` and forwards validated submissions to Google Apps Script / Google Sheets.
 - `GET /style.css` and `GET /app.js` redirect to `/static/...` to preserve existing frontend references.
 
 ### Libraries Used
@@ -49,6 +50,8 @@
 ## 4. CURRENT FEATURES
 - SQL formatting endpoint with validation and standardized error responses.
 - Output-only copy with disabled state until formatted content exists.
+- Floating feedback widget with modal form.
+- Feedback capture endpoint with Google Sheets webhook forwarding.
 - Dark mode toggle with localStorage persistence and system preference fallback.
 - Keyboard shortcut support: Cmd/Ctrl + Enter to format.
 - Status messaging for formatting/copy/error states.
@@ -67,8 +70,9 @@
 5. Backend validates input and enforces rate limit.
 6. Backend returns formatted SQL or structured error.
 7. Frontend displays highlighted output and enables Copy.
-7. User clicks Copy to copy formatted SQL.
-8. User can Clear to reset input/output and disable Copy.
+8. User clicks Copy to copy formatted SQL.
+9. User can Clear to reset input/output and disable Copy.
+10. User can open the feedback widget, submit optional email plus message, and the backend stores it in Google Sheets.
 
 ## 6. CODE QUALITY REVIEW
 ### Maintainability
@@ -87,6 +91,7 @@
 - No automated test suite yet (backend/frontend).
 - No CI/CD pipeline or quality gates.
 - CDN dependency risk remains (highlight.js/fonts availability).
+- Feedback depends on an external Apps Script deployment and shared-secret configuration.
 - No auth/billing/multi-tenant controls yet (expected at current stage).
 
 ## 7. MISSING FEATURES
