@@ -96,6 +96,7 @@ uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
   - Who has access: `Anyone`
 5. Copy the Web App `/exec` URL into `FEEDBACK_WEBHOOK_URL`.
 6. Set the same shared secret in both Apps Script (`FEEDBACK_TOKEN`) and backend (`FEEDBACK_WEBHOOK_TOKEN`).
+7. Set these values in whatever environment runs your backend locally or in production.
 
 ## Build Docker Image
 From project root:
@@ -123,14 +124,10 @@ docker run --rm -p 8000:8000 \
 4. Set environment variables in Railway:
    - `ALLOWED_ORIGINS` (your production domain)
    - `LOG_LEVEL=INFO`
-  - `FEEDBACK_WEBHOOK_URL`
-  - `FEEDBACK_WEBHOOK_TOKEN`
-  - `APP_ENV=production`
 5. Deploy and verify the service:
    - `/healthz` returns `{"status":"ok"}`
    - `/` loads the SQL formatter UI
    - `/format` formats SQL queries
-  - Feedback submissions create rows in Google Sheets
 
 ## Deploy to Render
 1. Create a new Web Service from your GitHub repo.
@@ -138,14 +135,19 @@ docker run --rm -p 8000:8000 \
 3. Set environment variables:
    - `ALLOWED_ORIGINS` (your production domain)
    - `LOG_LEVEL=INFO`
-  - `FEEDBACK_WEBHOOK_URL`
-  - `FEEDBACK_WEBHOOK_TOKEN`
-  - `APP_ENV=production`
 4. Deploy and test:
    - `/healthz`
    - `/`
    - `POST /format`
-  - `POST /feedback`
+
+## Production Feedback Config
+Set these in your production hosting environment, regardless of provider:
+
+- `FEEDBACK_WEBHOOK_URL`
+- `FEEDBACK_WEBHOOK_TOKEN`
+- `APP_ENV=production`
+
+After deploy, verify that feedback submissions create rows in Google Sheets.
 
 ## Use Cases
 This tool is useful for:
