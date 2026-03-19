@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | SQL Formatter</title>
+    <meta name="description" content="Privacy policy for SQL Formatter. Learn how SQL queries are processed, what analytics are used, and what data is not collected.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2">
+    <style>
+        .privacy-page {
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 40px 20px 72px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 24px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color 0.15s ease, transform 0.15s ease;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+            transform: translateX(-2px);
+        }
+
+        .privacy-card {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(47, 129, 247, 0.06), rgba(21, 27, 35, 0)) var(--panel);
+            box-shadow: 0 24px 60px rgba(8, 15, 28, 0.18);
+            padding: 32px;
+        }
+
+        .privacy-card h1 {
+            margin-bottom: 20px;
+        }
+
+        .trust-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+            padding: 12px 16px;
+            border: 1px solid rgba(63, 185, 80, 0.28);
+            border-radius: 12px;
+            background: rgba(63, 185, 80, 0.08);
+            color: #b6f0c0;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .privacy-section + .privacy-section {
+            margin-top: 32px;
+        }
+
+        .privacy-section h2 {
+            margin: 0 0 12px;
+            font-size: 1.08rem;
+        }
+
+        .privacy-section p,
+        .privacy-section ul {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.75;
+        }
+
+        .privacy-section ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .privacy-section li + li {
+            margin-top: 8px;
+        }
+
+        .contact-link {
+            color: var(--text);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(47, 129, 247, 0.35);
+        }
+
+        .contact-link:hover {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .footer {
+            border-top: none;
+            padding-top: 24px;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                padding: 28px 16px 56px;
+            }
+
+            .privacy-card {
+                padding: 22px 18px;
+                border-radius: 12px;
+            }
+
+            .trust-banner {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body class="privacy-page">
+    <main class="container">
+        <a href="/" class="back-link">&larr; Back to SQL Formatter</a>
+
+        <section class="privacy-card" aria-label="Privacy policy">
+            <h1>Privacy Policy</h1>
+
+            <p class="trust-banner">🔒 We don’t store your SQL queries</p>
+
+            <section class="privacy-section">
+                <h2>Introduction</h2>
+                <p>SQL Formatter is built to be useful without collecting unnecessary information. We respect user privacy and do not collect personal data as part of the formatting experience.</p>
+            </section>
+
+            <section class="privacy-section">
+                <h2>Data Collection</h2>
+                <p>SQL queries submitted through this website are processed in real time so formatting can be returned immediately.</p>
+                <ul>
+                    <li>Queries are processed in real time.</li>
+                    <li>Queries are not stored.</li>
+                    <li>Queries are not logged.</li>
+                    <li>Queries are not shared with third parties.</li>
+                </ul>
+            </section>
+
+            <section class="privacy-section">
+                <h2>Analytics</h2>
+                <p>This site uses Plausible Analytics to understand overall usage patterns and improve the product. Plausible does not use cookies for this site, and no personal data is collected through analytics.</p>
+            </section>
+
+            <section class="privacy-section">
+                <h2>Cookies</h2>
+                <p>This website does not use cookies.</p>
+            </section>
+
+            <section class="privacy-section">
+                <h2>Third-Party Links</h2>
+                <p>This website may include links to external sites such as GitHub. Those sites operate independently, and their content and privacy practices are not controlled by SQL Formatter.</p>
+            </section>
+
+            <section class="privacy-section">
+                <h2>Contact</h2>
+                <p>Questions about this privacy policy can be sent to <a class="contact-link" href="mailto:contact@sql-formatter.dev">contact@sql-formatter.dev</a>.</p>
+            </section>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>© 2026 SQL Formatter</p>
+    </footer>
+</body>
+
+</html>

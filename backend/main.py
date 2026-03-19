@@ -186,6 +186,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / "frontend"
 INDEX_FILE = FRONTEND_DIR / "index.html"
+PRIVACY_FILE = FRONTEND_DIR / "privacy.html"
 
 allowed_origins = [
     origin.strip()
@@ -264,6 +265,11 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 @app.get("/")
 async def home_page():
     return FileResponse(INDEX_FILE)
+
+
+@app.get("/privacy")
+async def privacy_page():
+    return FileResponse(PRIVACY_FILE)
 
 
 @app.get("/style.css")
