@@ -38,8 +38,9 @@ body {
   font-family: "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
   color: var(--text);
   background:
-    radial-gradient(circle at 0% 0%, rgba(31, 111, 235, 0.12), transparent 32%),
-    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.08), transparent 34%),
+    radial-gradient(circle at 0% 0%, rgba(31, 111, 235, 0.16), transparent 30%),
+    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.1), transparent 34%),
+    linear-gradient(180deg, rgba(47, 129, 247, 0.04), transparent 22%),
     var(--bg);
   display: flex;
   flex-direction: column;
@@ -49,8 +50,9 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--panel);
+  background: linear-gradient(180deg, rgba(47, 129, 247, 0.05), rgba(21, 27, 35, 0)) var(--panel);
   border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(10px);
 }
 
 .topbar-inner {
@@ -93,11 +95,11 @@ body {
 }
 
 .tool-card {
-  background: var(--panel);
+  background: linear-gradient(180deg, rgba(47, 129, 247, 0.06), rgba(21, 27, 35, 0)) var(--panel);
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 24px;
-  box-shadow: 0 4px 12px rgba(8, 15, 28, 0.08);
+  box-shadow: 0 24px 60px rgba(8, 15, 28, 0.18);
 }
 
 .layout {
@@ -111,8 +113,8 @@ body {
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 14px;
-  background: var(--panel);
-  box-shadow: 0 4px 12px rgba(8, 15, 28, 0.08);
+  background: linear-gradient(180deg, rgba(47, 129, 247, 0.05), rgba(21, 27, 35, 0)) var(--panel);
+  box-shadow: 0 24px 60px rgba(8, 15, 28, 0.16);
   display: grid;
   gap: 12px;
 }
@@ -300,8 +302,8 @@ body {
   max-width: 920px;
   border: 1px solid var(--line);
   border-radius: 16px;
-  background: var(--panel);
-  box-shadow: 0 24px 60px rgba(8, 15, 28, 0.12);
+  background: linear-gradient(180deg, rgba(47, 129, 247, 0.05), rgba(21, 27, 35, 0)) var(--panel);
+  box-shadow: 0 24px 60px rgba(8, 15, 28, 0.18);
   padding: 24px;
 }
 
@@ -317,11 +319,12 @@ h1 {
   margin: 0;
   font-size: 2rem;
   line-height: 1.1;
+  letter-spacing: -0.03em;
 }
 
 .subtitle {
   margin: 8px 0 0;
-  color: var(--muted);
+  color: color-mix(in srgb, var(--text) 74%, var(--muted) 26%);
 }
 
 .label {
@@ -507,7 +510,7 @@ h1 {
   border: 1px solid var(--line);
   border-radius: 12px;
   min-height: 200px;
-  background: rgba(127, 127, 127, 0.04);
+  background: linear-gradient(180deg, rgba(47, 129, 247, 0.05), rgba(127, 127, 127, 0.04));
   overflow: hidden;
 }
 
@@ -578,7 +581,7 @@ h1 {
   margin-top: 10px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: rgba(127, 127, 127, 0.04);
+  background: linear-gradient(180deg, rgba(47, 129, 247, 0.05), rgba(127, 127, 127, 0.04));
   padding: 14px;
   overflow-x: auto;
 }

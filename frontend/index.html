@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -18,9 +18,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
-        id="hljs-dark-theme" disabled>
+        id="hljs-dark-theme">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
-        id="hljs-light-theme">
+        id="hljs-light-theme" disabled>
         <link rel="stylesheet" href="style.css?v=2">
 </head>
 
@@ -39,8 +39,8 @@
             <div class="tool-card">
                 <header class="header">
                     <div>
-                        <h1>SQL Query Formatter</h1>
-                        <p class="subtitle">Lightweight formatting tool for fast SQL cleanup.</p>
+                        <h1>Clean Up SQL Fast</h1>
+                        <p class="subtitle">Format messy queries into clean, readable SQL.</p>
                     </div>
                     <button id="theme-toggle" class="btn btn-secondary" type="button" aria-label="Toggle dark mode">Dark
                         Mode</button>
@@ -100,6 +100,8 @@
                         <option value="spark">Spark SQL</option>
                     </select>
                 </div>
+
+                <p style="margin:0;padding-top:4px;padding-left:10px;border-left:2px solid var(--line);font-size:0.78rem;color:var(--muted);line-height:1.5;">↵ Click <strong style="color:var(--text);font-weight:600;">Format</strong> to apply changes.</p>
             </aside>
         </div>
 
